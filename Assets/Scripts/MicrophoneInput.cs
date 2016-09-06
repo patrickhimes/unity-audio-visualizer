@@ -6,7 +6,6 @@ using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
 public class MicrophoneInput : MonoBehaviour {
-	public float minThreshold = 0;
 	public float frequency = 0.0f;
 	public int audioSampleRate = 44100;
 	public string microphone;
@@ -15,11 +14,9 @@ public class MicrophoneInput : MonoBehaviour {
 	public Slider thresholdSlider;
 
 	private List<string> options = new List<string>();
-	private int samples = 8192; 
 	private AudioSource audioSource;
 
-	void Start() {
-		
+	void Start(){
 
 		//get components you'll need
 		audioSource = GetComponent<AudioSource> ();
@@ -30,22 +27,30 @@ public class MicrophoneInput : MonoBehaviour {
 				//set default mic to first mic found.
 				microphone = device;
 			}
-			options.Add(device);
+			options.Add (device);
 		}
-		microphone = options[PlayerPrefsManager.GetMicrophone ()];
-		minThreshold = PlayerPrefsManager.GetThreshold ();
+		microphone = options [PlayerPrefsManager.GetMicrophone ()];
 
 		//add mics to dropdown
-		micDropdown.AddOptions(options);
-		micDropdown.onValueChanged.AddListener(delegate {
-			micDropdownValueChangedHandler(micDropdown);
+		micDropdown.AddOptions (options);
+		micDropdown.onValueChanged.AddListener (delegate {
+			micDropdownValueChangedHandler (micDropdown);
 		});
 
-		thresholdSlider.onValueChanged.AddListener(delegate {
-			thresholdValueChangedHandler(thresholdSlider);
-		});
+	}
+
+	public void Play() {
 		//initialize input with default mic
 		UpdateMicrophone ();
+	}
+
+	public void Stop(){
+		audioSource.Stop(); 
+		Microphone.End (microphone);
+	}
+
+	public AudioSource GetAudioSource(){
+		return audioSource;
 	}
 
 	void UpdateMicrophone(){
@@ -77,9 +82,6 @@ public class MicrophoneInput : MonoBehaviour {
 		UpdateMicrophone ();
 	}
 
-	public void thresholdValueChangedHandler(Slider thresholdSlider){
-		minThreshold = thresholdSlider.value;
-	}
 	
 	public float GetAveragedVolume()
 	{ 
@@ -92,27 +94,5 @@ public class MicrophoneInput : MonoBehaviour {
 		}
 		return a/256;
 	}
-	
-	public float GetFundamentalFrequency()
-	{
-		float fundamentalFrequency = 0.0f;
-		float[] data = new float[samples];
-		audioSource.GetSpectrumData(data,0,fftWindow);
-		float s = 0.0f;
-		int i = 0;
-		for (int j = 1; j < samples; j++)
-		{
-			if(data[j] > minThreshold) // volumn must meet minimum threshold
-			{
-				if ( s < data[j] )
-				{
-					s = data[j];
-					i = j;
-				}
-			}
-		}
-		fundamentalFrequency = i * audioSampleRate / samples;
-		frequency = fundamentalFrequency;
-		return fundamentalFrequency;
-	}
+
 }

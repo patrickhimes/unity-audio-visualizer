@@ -5,7 +5,7 @@ using System.Collections;
 public class OptionsController : MonoBehaviour {
 
 	public Dropdown microphone;
-	public Slider sensitivitySlider, thresholdSlider;
+	public Slider volumeSlider,sensitivitySlider, thresholdSlider;
 	public GameObject settingsPanel;
 	public GameObject openButton;
 
@@ -14,14 +14,14 @@ public class OptionsController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		microphone.value = PlayerPrefsManager.GetMicrophone ();
+		volumeSlider.value = PlayerPrefsManager.GetVolume ();
 		sensitivitySlider.value = PlayerPrefsManager.GetSensitivity ();
-		thresholdSlider.value = PlayerPrefsManager.GetThreshold ();
 	}
 
 	public void SaveAndExit (){
 		PlayerPrefsManager.SetMicrophone (microphone.value);
+		PlayerPrefsManager.SetVolume (volumeSlider.value);
 		PlayerPrefsManager.SetSensitivity (sensitivitySlider.value);
-		PlayerPrefsManager.SetThreshold (thresholdSlider.value);
 
 		panelActive = !panelActive;
 		settingsPanel.GetComponent<Animator> ().SetBool ("PanelActive",panelActive);
@@ -29,8 +29,8 @@ public class OptionsController : MonoBehaviour {
 
 	public void SetDefaults(){
 		microphone.value = 0;
-		sensitivitySlider.value = 100f;
-		thresholdSlider.value = 0.001f;
+		volumeSlider.value = 1f;
+		sensitivitySlider.value = 50f;
 	}
 
 	public void OpenSettings(){

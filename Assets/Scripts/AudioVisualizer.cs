@@ -3,13 +3,13 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class AudioVisualizer : MonoBehaviour {
-		
+	public AudioSource audioSource;
 	public Transform[] audioSpectrumObjects;
 	[Range(1, 100)] public float heightMultiplier;
 	[Range(64, 8192)] public int numberOfSamples = 1024; //step by 2
 	public FFTWindow fftWindow;
 	public float lerpTime = 1;
-	public Slider sensitivitySlider;
+	public Slider volumeSlider,intensitySlider;
 
 	/*
 	 * The intensity of the frequencies found between 0 and 44100 will be
@@ -22,8 +22,13 @@ public class AudioVisualizer : MonoBehaviour {
 
 		heightMultiplier = PlayerPrefsManager.GetSensitivity ();
 
-		sensitivitySlider.onValueChanged.AddListener(delegate {
-			SensitivityValueChangedHandler(sensitivitySlider);
+		//monitor sliders for changes
+		volumeSlider.onValueChanged.AddListener(delegate {
+			VolumeValueChangedHandler(volumeSlider);
+		});
+
+		intensitySlider.onValueChanged.AddListener(delegate {
+			IntensityValueChangedHandler(intensitySlider);
 		});
 	}
 
@@ -33,7 +38,7 @@ public class AudioVisualizer : MonoBehaviour {
 		float[] spectrum = new float[numberOfSamples];
 
 		// populate array with fequency spectrum data
-		GetComponent<AudioSource>().GetSpectrumData(spectrum, 0, fftWindow);
+		audioSource.GetSpectrumData(spectrum, 0, fftWindow);
 
 
 		// loop over audioSpectrumObjects and modify according to fequency spectrum data
@@ -54,8 +59,11 @@ public class AudioVisualizer : MonoBehaviour {
 		}
 	}
 
-	public void SensitivityValueChangedHandler(Slider sensitivitySlider){
-		heightMultiplier = sensitivitySlider.value;
+	public void IntensityValueChangedHandler(Slider intensitySlider){
+		heightMultiplier = intensitySlider.value;
 	}
 
+	public void VolumeValueChangedHandler(Slider volumeSlider){
+		audioSource.volume = Mathf.Clamp01(volumeSlider.value);
+	}
 }
